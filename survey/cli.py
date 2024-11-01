@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 """
-Basic CLI Template
+CLI for managing candidate surveys
 
 Example usage:
-    poetry run template-cli version
+    poetry run survey version
 
 """
 import click

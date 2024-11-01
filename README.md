@@ -1,4 +1,4 @@
-# python-template
+# candidate-surveys
 
 ## Usage
 
@@ -9,7 +9,7 @@ Before using the project, either install it by following instructions in [Instal
 - Output project version
 
     ```python
-    template-cli version
+    survey version
     ```
 
 ## Installation
@@ -19,13 +19,13 @@ If not developing, then no need to clone this repo. You can use [pipx](https://g
 1. Install the project:
 
     ```sh
-    pipx install git+https://github.com/bryanculbertson/python-template
+    pipx install git+https://github.com/bryanculbertson/candidate-surveys
     ```
 
 1. Test your installation!
 
     ```sh
-    template-cli --help
+    survey --help
     ```
 
 ## Development
@@ -254,14 +254,14 @@ After setting up system environment with `pyenv` and `poetry`, then you can inst
 1. Test your installation!
 
     ```sh
-    poetry run template-cli --help
+    poetry run survey --help
     ```
 
     *or*
 
     ```sh
     poetry shell
-    template-cli --help
+    survey --help
     ```
 
 ### Testing

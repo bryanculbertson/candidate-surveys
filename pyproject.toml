@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "template-cli"
+name = "survey"
 version = "0.1.0"
-description = "Basic template for python project"
-authors = ["Bryan Culbertson <bryan.culbertson@gmail.com>"]
+description = "CLI for managing candidate surveys"
+authors = ["Bryan Culbertson <bryan.culbertson@gmail.com>", "Cyrus Hall <cyrusphall@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -26,7 +26,7 @@ pytest-xdist = {version = "3.6.1", extras = ["psutil"]}
 pytest-randomly = "3.16.0"
 
 [tool.poetry.scripts]
-template-cli = "template_cli.cli:cli"
+survey = "survey.cli:cli"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
