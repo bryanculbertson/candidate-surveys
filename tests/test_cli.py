@@ -1,3 +1,5 @@
+# type: ignore
+
 from click.testing import CliRunner
 
 from survey.cli import version
