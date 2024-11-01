@@ -11,7 +11,7 @@ Example usage:
 import click
 import dotenv
 
-from .survey import pdf_utils
+from . import pdf_utils
 
 
 @click.group()
