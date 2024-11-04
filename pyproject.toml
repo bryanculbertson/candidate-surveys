@@ -9,7 +9,7 @@ python = "^3.12"
 click = "8.1.7"
 python-dotenv = "1.0.1"
 reportlab = "4.2.5"
-yattag = "1.16.0"
+yattag = "1.16.1"
 
 [tool.poetry.group.dev.dependencies]
 # Lint (versions duplicated in .pre-commit-config.yaml)
