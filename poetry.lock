@@ -832,17 +832,7 @@ platformdirs = ">=3.9.1,<5"
 docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.2,!=7.3)", "sphinx-argparse (>=0.4)", "sphinxcontrib-towncrier (>=0.2.1a0)", "towncrier (>=23.6)"]
 test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.4)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8)", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=68)", "time-machine (>=2.10)"]
 
-[[package]]
-name = "yattag"
-version = "1.16.0"
-description = "Generate HTML or XML in a pythonic way. Pure python alternative to web template engines.Can fill HTML forms with default values and error messages."
-optional = false
-python-versions = "*"
-files = [
-    {file = "yattag-1.16.0.tar.gz", hash = "sha256:0978247b9754d9f44e3703c64374ab9fa872d18de95ac5772fdfdd3c3f0d0706"},
-]
-
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "9c0a868af16a58f6d324c2f5f6ca767758466921701a9374615acd0ab2fa1dc3"
+content-hash = "2a8027ae2c4bb4bd7a1e0ae65a5297a43424359d7ef4997cc7c7345080f99de3"

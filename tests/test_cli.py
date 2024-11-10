@@ -1,6 +1,6 @@
 from click.testing import CliRunner
 
-from survey.cli import version
+from candidate_surveys.cli import version
 
 
 def test_version() -> None:
