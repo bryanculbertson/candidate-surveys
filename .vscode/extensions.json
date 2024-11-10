@@ -6,6 +6,8 @@
         "ms-python.isort",
         "ms-python.mypy-type-checker",
         "ms-python.python",
-        "editorconfig.editorconfig"
+        "editorconfig.editorconfig",
+        "tomoki1207.pdf",
+        "davidanson.vscode-markdownlint"
     ]
 }

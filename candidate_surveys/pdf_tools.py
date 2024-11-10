@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 import hashlib
-import os
+import pathlib
 
 import reportlab.graphics.shapes as shapes
 from reportlab.lib import utils
@@ -67,11 +67,15 @@ def short_hash(s: str) -> str:
 # Each path is prefixed with a folder called pdfs/ to keep things clean.
 # Note the paths are using unix style delimeters. This should be made
 # cross-platform.
-def generate_filename(candidate: dict, conf: dict) -> str:
-    path = conf["output_directory"]
-    for elem in conf["file_structure"]:
-        path = "%s/%s" % (path, candidate[elem].replace("/", "-"))
-    path = "%s.pdf" % path
+def generate_filename(candidate: dict, conf: dict) -> pathlib.Path:
+    path = pathlib.Path(conf["output_directory"])
+    for i, elem in enumerate(conf["file_structure"]):
+        filename = candidate[elem].replace("/", "-")
+
+        if i == len(conf["file_structure"]) - 1:
+            path = path / f"{filename}.pdf"
+        else:
+            path = path / filename
 
     return path
 
@@ -183,11 +187,11 @@ def get_default_image_size(
     return (width, height)
 
 
-def find_target_pixels(largest_dim: float, valid_images: list[str]) -> float:
+def find_target_pixels(largest_dim: float, valid_images: list[pathlib.Path]) -> float:
     smallest = largest_dim * largest_dim
 
     for path in valid_images:
-        img = utils.ImageReader(path)
+        img = utils.ImageReader(str(path))
         iw, ih = get_default_image_size(img, largest_dim)
         pixels = iw * ih
         if pixels < smallest:
@@ -196,8 +200,8 @@ def find_target_pixels(largest_dim: float, valid_images: list[str]) -> float:
     return smallest
 
 
-def get_image(path: str, largest_dim: float, target_pix: float) -> Image:
-    img = utils.ImageReader(path)
+def get_image(path: pathlib.Path, largest_dim: float, target_pix: float) -> Image:
+    img = utils.ImageReader(str(path))
 
     width, height = get_default_image_size(img, largest_dim)
     n_pix = width * height
@@ -215,12 +219,11 @@ def get_image(path: str, largest_dim: float, target_pix: float) -> Image:
 # may not be full.
 #
 # Method could use a ton of generalization, but we're working fast here...
-def add_logos(d: list[Flowable], directory: str, conf: dict) -> None:
+def add_logos(d: list[Flowable], directory: pathlib.Path, conf: dict) -> None:
     valid_images = []
-    for filename in os.listdir(directory):
-        f = os.path.join(directory, filename)
-        if os.path.isfile(f):
-            valid_images.append(f)
+    for filename in directory.iterdir():
+        if filename.is_file() and filename.suffix in [".png", ".jpg", ".jpeg"]:
+            valid_images.append(filename)
 
     COLUMNS = conf["logo_columns"]
     IMGSIZE = 400 / COLUMNS
@@ -286,7 +289,7 @@ def print_footer(d: list[Flowable], conf: dict) -> None:
 
     elems.append(Paragraph("<i>%s</i>" % conf["footer"], BODY_STYLE))
 
-    add_logos(elems, conf["logo_directory"], conf)
+    add_logos(elems, pathlib.Path(conf["logo_directory"]), conf)
 
     d.append(KeepTogether(elems))
 
@@ -299,11 +302,11 @@ def dump_questionnare_to_pdf(questionnare: dict, conf: dict) -> None:
 
     # Ensure the directory exists.
     filename = generate_filename(candidate, conf)
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    filename.parent.mkdir(parents=True, exist_ok=True)
     print("Creating %s" % filename)
 
     # Start the PDF document. Set letter because we are silly Americans.
-    doc = SimpleDocTemplate(filename, pagesize=letter)
+    doc = SimpleDocTemplate(str(filename), pagesize=letter)
 
     # elements will hold all document elements, which must be Flowable.
     # Functions called below primarily append to this list.
