@@ -1,12 +1,11 @@
 #! /usr/bin/python3
-# type: ignore
 
 import csv
 import hashlib
 import json
-import numbers
 import os
-import re
+from collections.abc import Sequence
+from typing import Any, cast
 
 import reportlab.graphics.shapes as shapes
 from reportlab.lib import utils
@@ -15,7 +14,10 @@ from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import inch
+from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import (
+    BaseDocTemplate,
+    Flowable,
     Image,
     KeepTogether,
     Paragraph,
@@ -24,12 +26,8 @@ from reportlab.platypus import (
     Table,
     TableStyle,
 )
-from yattag import Doc, indent
 
 CANDIDATE_DETAILS = "candidate_details"
-CONF_HTML_TABLE = "html_table"
-CONF_HTML_COLOR = "color_matches"
-CONF_HTML_TITLES = "title_overrides"
 
 # A quick style to justify paragraph text
 JUSTIFY_STYLE = ParagraphStyle("justify")
@@ -48,23 +46,21 @@ ANSWER_STYLE.leftIndent = 12
 CENTER_STYLE = ParagraphStyle("justify")
 CENTER_STYLE.alignment = TA_CENTER
 
-doc, tag, text = Doc().tagtext()
-
 
 # Some convience functions for hrule spacing
-def spacer(elems):
+def spacer(elems: list[Flowable]) -> None:
     elems.append(Spacer(1, 0.1 * inch))
 
 
-def big_spacer(elems):
+def big_spacer(elems: list[Flowable]) -> None:
     elems.append(Spacer(1, 0.25 * inch))
 
 
-def small_spacer(elems):
+def small_spacer(elems: list[Flowable]) -> None:
     elems.append(Spacer(1, 0.05 * inch))
 
 
-def short_hash(s):
+def short_hash(s: str) -> str:
     h = hashlib.md5()
     h.update(s.encode())
     return "C" + h.hexdigest()[0:4]
@@ -75,7 +71,7 @@ def short_hash(s):
 # Each path is prefixed with a folder called pdfs/ to keep things clean.
 # Note the paths are using unix style delimeters. This should be made
 # cross-platform.
-def generate_filename(candidate, conf):
+def generate_filename(candidate: dict, conf: dict) -> str:
     path = conf["output_directory"]
     for elem in conf["file_structure"]:
         path = "%s/%s" % (path, candidate[elem].replace("/", "-"))
@@ -84,7 +80,7 @@ def generate_filename(candidate, conf):
     return path
 
 
-def get_candidate_details(questionnaire, conf):
+def get_candidate_details(questionnaire: dict, conf: dict) -> dict:
     candidate = {}
     for prop in conf[CANDIDATE_DETAILS]:
         candidate[prop] = questionnaire[prop].strip()
@@ -92,45 +88,44 @@ def get_candidate_details(questionnaire, conf):
     return candidate
 
 
-def get_prompt(question, conf):
-    # print("Override '%s'?" % question)
+def get_prompt(question: str, conf: dict) -> str:
     if question in conf["question_overrides"]:
-        # print("Yes: '%s'" % conf["question_overrides"][question])
         return conf["question_overrides"][question]
-    # print("No")
 
     return question
 
 
 # Print the first section of the document, which details who the candidate is.
-def print_candidate_details(d, candidate, conf):
+def print_candidate_details(d: list[Flowable], candidate: dict, conf: dict) -> None:
     for elem in conf["candidate_details"]:
         d.append(Paragraph("<b>%s</b>: %s" % (get_prompt(elem, conf), candidate[elem])))
         spacer(d)
 
 
 # Print a single paragraph of a candidate answer.
-def print_answer_subpart(d, part):
-    # if part == "":
-    # d.append(Paragraph("<i>Not answered.</i>", ANSWER_STYLE))
-    # else:
-    d.append(Paragraph("%s" % part.strip(), ANSWER_STYLE))
+def print_answer_subpart(
+    d: list[Flowable], part: str, print_not_answered: bool = False
+) -> None:
+    if part == "" and print_not_answered:
+        d.append(Paragraph("<i>Not answered.</i>", ANSWER_STYLE))
+    else:
+        d.append(Paragraph("%s" % part.strip(), ANSWER_STYLE))
 
 
 # Print candidate answer to a single question.
-def print_answer(d, answer):
+def print_answer(d: list[Flowable], answer: str) -> None:
     for _, para in enumerate(answer.split("\n")):
         if para != "\n":
             print_answer_subpart(d, para)
             small_spacer(d)
 
 
-def print_question_subpart(d, part, header=""):
+def print_question_subpart(d: list[Flowable], part: str, header: str = "") -> None:
     d.append(Paragraph("<b>%s%s</b>" % (header, part.strip()), BODY_STYLE))
 
 
 # Print out a bolded copy of a question.
-def print_question(d, question, num):
+def print_question(d: list[Flowable], question: str, num: int) -> None:
     for i, para in enumerate(question.split("\n")):
         if para != "\n":
             if i == 0:
@@ -141,7 +136,7 @@ def print_question(d, question, num):
 
 
 # Print all questions and answer for a single questionnare.
-def print_answers(d, questionnare, conf):
+def print_answers(d: list[Flowable], questionnare: dict, conf: dict) -> None:
     spacer(d)
 
     conditional_fields = {}
@@ -176,9 +171,11 @@ def print_answers(d, questionnare, conf):
         i = i + 1
 
 
-def get_default_image_size(img, largest_dim):
+def get_default_image_size(
+    img: utils.ImageReader, largest_dim: float
+) -> tuple[float, float]:
     iw, ih = img.getSize()
-    width, height = 0, 0
+    width, height = 0.0, 0.0
 
     if iw >= ih:
         width = largest_dim
@@ -190,7 +187,7 @@ def get_default_image_size(img, largest_dim):
     return (width, height)
 
 
-def find_target_pixels(largest_dim, valid_images):
+def find_target_pixels(largest_dim: float, valid_images: list[str]) -> float:
     smallest = largest_dim * largest_dim
 
     for path in valid_images:
@@ -203,7 +200,7 @@ def find_target_pixels(largest_dim, valid_images):
     return smallest
 
 
-def get_image(path, largest_dim, target_pix):
+def get_image(path: str, largest_dim: float, target_pix: float) -> Image:
     img = utils.ImageReader(path)
 
     width, height = get_default_image_size(img, largest_dim)
@@ -222,7 +219,7 @@ def get_image(path, largest_dim, target_pix):
 # may not be full.
 #
 # Method could use a ton of generalization, but we're working fast here...
-def add_logos(d, directory, conf):
+def add_logos(d: list[Flowable], directory: str, conf: dict) -> None:
     valid_images = []
     for filename in os.listdir(directory):
         f = os.path.join(directory, filename)
@@ -267,7 +264,7 @@ def add_logos(d, directory, conf):
     )
 
 
-def print_header(d, conf):
+def print_header(d: list[Flowable], conf: dict) -> None:
     ps = ParagraphStyle("title")
     ps.alignment = TA_CENTER
 
@@ -282,7 +279,7 @@ def print_header(d, conf):
     big_spacer(d)
 
 
-def print_footer(d, conf):
+def print_footer(d: list[Flowable], conf: dict) -> None:
     elems = []
 
     hrule = shapes.Drawing(5.5 * inch, 10)
@@ -300,7 +297,7 @@ def print_footer(d, conf):
 
 # Create a properly named PDF file and write out the results of a the associated
 # candidate questionnare.
-def dump_questionnare_to_pdf(questionnare, conf):
+def dump_questionnare_to_pdf(questionnare: dict, conf: dict) -> None:
     # Extract candidate details from the questionnare
     candidate = get_candidate_details(questionnare, conf)
 
@@ -314,7 +311,7 @@ def dump_questionnare_to_pdf(questionnare, conf):
 
     # elements will hold all document elements, which must be Flowable.
     # Functions called below primarily append to this list.
-    elements = []
+    elements: list[Flowable] = []
 
     print_header(elements, conf)
 
@@ -331,7 +328,7 @@ def dump_questionnare_to_pdf(questionnare, conf):
     big_spacer(elements)
     print_footer(elements, conf)
 
-    def configureDoc(canvas, doc):
+    def configureDoc(canvas: Canvas, doc: BaseDocTemplate) -> None:
         canvas.saveState()
 
         canvas.setAuthor(conf["pdf_author"])
@@ -353,112 +350,24 @@ def dump_questionnare_to_pdf(questionnare, conf):
     doc.build(elements, onFirstPage=configureDoc)
 
 
-def style_name(field, value):
+def style_name(field: str, value: str) -> str:
     return "%s_%s" % (short_hash(field), value)
 
 
-def print_style(html_conf):
-    with tag("head"):
-        with tag("style"):
-            text("td.header { font-weight: bold; }\n\n")
-            text(
-                """/* Tooltip container */
-.tooltip {
-  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
-}
-
-/* Tooltip text */
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 240;
-  background-color: white;
-  color: #fff;
-  text-align: center;
-  padding: 5px 0;
-  border-radius: 6px;
-
-  /* Position the tooltip text - see examples below! */
-  position: absolute;
-  z-index: 1;
-}
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-}\n\n"""
-            )
-            if CONF_HTML_COLOR in html_conf:
-                for k, v in html_conf[CONF_HTML_COLOR].items():
-                    for name, nv in v.items():
-                        text(
-                            "td.%s { background-color: %s; }\n"
-                            % (style_name(k, name), nv)
-                        )
-
-
-def print_table_header(html_conf):
-    with tag("tr"):
-        for col_name in html_conf["cols"]:
-            with tag("td", klass="header"):
-                text(html_conf[CONF_HTML_TITLES].get(col_name, col_name))
-
-
-def find_cell_color_class(cell_value, field, lookup):
-    if lookup:
-        for k, v in lookup.items():
-            if re.match("^%s" % k, cell_value, flags=re.IGNORECASE) is not None:
-                return style_name(field, k), k
-
-    return None, None
-
-
-def dump_questionnare_to_row(questionnare, conf):
-    html_conf = conf[CONF_HTML_TABLE]
-
-    with tag("tr"):
-        for col_name in html_conf["cols"]:
-            cell_value = questionnare[col_name]
-            color = html_conf.get(CONF_HTML_COLOR, {})
-
-            c, v = find_cell_color_class(
-                cell_value, col_name, color.get(col_name, None)
-            )
-            if c:
-                with tag("td", klass="%s" % c):
-                    text(v)
-            else:
-                if color.get(col_name):
-                    with tag("td", klass="tooltip"):
-                        text("other")
-                        with tag("span", klass="tooltiptext"):
-                            text(cell_value)
-                else:
-                    with tag("td"):
-                        text(cell_value)
-
-
-def wrap_html_table(conf, iter_f):
-    html_conf = conf[CONF_HTML_TABLE]
-
-    with tag("html"):
-        print_style(html_conf)
-        with tag("body"):
-            with tag("table"):
-                print_table_header(html_conf)
-                iter_f()
-
-
-def load_conf(conf_filename, csv_reader):
+def load_conf(conf_filename: str, csv_reader: csv.DictReader) -> dict:
     conf = json.loads(open(conf_filename).read())
 
-    fields = csv_reader.fieldnames
+    fields = cast(
+        Sequence[str],
+        csv_reader.fieldnames,
+    )
     for i, x in enumerate(conf["file_structure"]):
-        if isinstance(x, numbers.Number):
+        if isinstance(x, int):
             print("Replacing %s with %s in file_structure." % (x, fields[x]))
             conf["file_structure"][i] = fields[x]
 
     for i, x in enumerate(conf["candidate_details"]):
-        if isinstance(x, numbers.Number):
+        if isinstance(x, int):
             print("Replacing %s with %s in candidate_details." % (x, fields[x]))
             conf["candidate_details"][i] = fields[x]
 
@@ -472,43 +381,10 @@ def load_conf(conf_filename, csv_reader):
             overrides[k] = v
     conf["question_overrides"] = overrides
 
-    # check for an HTML table; load if it exists
-    if CONF_HTML_TABLE in conf:
-        html_spec = conf[CONF_HTML_TABLE]
-
-        for i, x in enumerate(html_spec["cols"]):
-            if isinstance(x, numbers.Number):
-                html_spec["cols"][i] = fields[x]
-
-        if CONF_HTML_COLOR in html_spec:
-            overrides = {}
-            for k, v in html_spec[CONF_HTML_COLOR].items():
-                print("%s : %s" % (k, v))
-                if k.isnumeric():
-                    k = int(k)
-                    overrides[fields[k]] = v
-                else:
-                    overrides[k] = v
-
-            html_spec[CONF_HTML_COLOR] = overrides
-
-        overrides = {}
-        if CONF_HTML_TITLES in html_spec:
-            for k, v in html_spec[CONF_HTML_TITLES].items():
-                print("%s : %s" % (k, v))
-                if k.isnumeric():
-                    k = int(k)
-                    overrides[fields[k]] = v
-                else:
-                    overrides[k] = v
-
-        html_spec[CONF_HTML_TITLES] = overrides
-        print(html_spec)
-
     return conf
 
 
-def run(args):
+def run(args: Any) -> None:
     with open(args.csv_filename) as csvfile:
         # Assumptions about the file:
         #  * Tab delimited
@@ -522,20 +398,5 @@ def run(args):
         conf["output_directory"] = args.output_directory.rstrip("/").strip()
         print(conf)
 
-        dump_html = CONF_HTML_TABLE in conf
-
-        def loop_iter():
-            for row in reader:
-                dump_questionnare_to_pdf(row, conf)
-                if dump_html:
-                    dump_questionnare_to_row(row, conf)
-
-        if dump_html:
-            wrap_html_table(conf, loop_iter)
-        else:
-            loop_iter()
-
-        if dump_html:
-            print("Dumping HTML table.")
-            with open("test.html", "w") as html_doc:
-                html_doc.write(indent(doc.getvalue()))
+        for row in reader:
+            dump_questionnare_to_pdf(row, conf)
