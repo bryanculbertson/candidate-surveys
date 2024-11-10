@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "survey"
+name = "candidate-surveys"
 version = "0.1.0"
 description = "CLI for managing candidate surveys"
 authors = ["Bryan Culbertson <bryan.culbertson@gmail.com>", "Cyrus Hall <cyrusphall@gmail.com>"]
@@ -28,7 +28,7 @@ pytest-xdist = {version = "3.6.1", extras = ["psutil"]}
 pytest-randomly = "3.16.0"
 
 [tool.poetry.scripts]
-survey = "survey.cli:cli"
+candidate-surveys = "candidate_surveys.cli:cli"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

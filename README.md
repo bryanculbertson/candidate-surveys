@@ -9,7 +9,7 @@ Before using the project, either install it by following instructions in [Instal
 - Output project version
 
     ```python
-    survey version
+    candidate-surveys version
     ```
 
 ## Installation
@@ -25,7 +25,7 @@ If not developing, then no need to clone this repo. You can use [pipx](https://g
 1. Test your installation!
 
     ```sh
-    survey --help
+    candidate-surveys --help
     ```
 
 ## Development
@@ -253,14 +253,14 @@ After setting up system environment with `pyenv` and `poetry`, then you can inst
 1. Test your installation!
 
     ```sh
-    poetry run survey --help
+    poetry run candidate-surveys --help
     ```
 
     *or*
 
     ```sh
     poetry shell
-    survey --help
+    candidate-surveys --help
     ```
 
 ### Testing

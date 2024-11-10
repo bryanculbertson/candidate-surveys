@@ -3,7 +3,7 @@
 CLI for managing candidate surveys
 
 Example usage:
-    poetry run survey version
+    poetry run candidate-surveys version
 
 """
 from typing import Any
@@ -11,7 +11,7 @@ from typing import Any
 import click
 import dotenv
 
-from survey import commands
+from candidate_surveys import commands
 
 
 @click.group()

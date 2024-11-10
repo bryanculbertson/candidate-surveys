@@ -1,7 +1,7 @@
 import csv
 
-from survey.conf_tools import load_conf
-from survey.pdf_tools import dump_questionnare_to_pdf
+from candidate_surveys.conf_tools import load_conf
+from candidate_surveys.pdf_tools import dump_questionnare_to_pdf
 
 
 def generate_pdfs(
