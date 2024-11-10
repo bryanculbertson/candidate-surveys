@@ -11,7 +11,7 @@ from typing import Any
 import click
 import dotenv
 
-from . import pdf_tools
+from survey import commands
 
 
 @click.group()
@@ -34,7 +34,12 @@ def version() -> None:
 def generate_pdfs(args: Any) -> None:
     """Generate PDFs."""
 
-    pdf_tools.run(args)
+    commands.generate_pdfs(
+        args.csv_filename,
+        args.config_filename,
+        args.logo_directory,
+        args.output_directory,
+    )
 
 
 if __name__ == "__main__":

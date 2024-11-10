@@ -1,11 +1,7 @@
 #! /usr/bin/python3
 
-import csv
 import hashlib
-import json
 import os
-from collections.abc import Sequence
-from typing import Any, cast
 
 import reportlab.graphics.shapes as shapes
 from reportlab.lib import utils
@@ -352,51 +348,3 @@ def dump_questionnare_to_pdf(questionnare: dict, conf: dict) -> None:
 
 def style_name(field: str, value: str) -> str:
     return "%s_%s" % (short_hash(field), value)
-
-
-def load_conf(conf_filename: str, csv_reader: csv.DictReader) -> dict:
-    conf = json.loads(open(conf_filename).read())
-
-    fields = cast(
-        Sequence[str],
-        csv_reader.fieldnames,
-    )
-    for i, x in enumerate(conf["file_structure"]):
-        if isinstance(x, int):
-            print("Replacing %s with %s in file_structure." % (x, fields[x]))
-            conf["file_structure"][i] = fields[x]
-
-    for i, x in enumerate(conf["candidate_details"]):
-        if isinstance(x, int):
-            print("Replacing %s with %s in candidate_details." % (x, fields[x]))
-            conf["candidate_details"][i] = fields[x]
-
-    overrides = {}
-    for k, v in conf["question_overrides"].items():
-        if k.isnumeric():
-            k = int(k)
-            print("Replacing '%s' with '%s' in question_overrides." % (fields[k], v))
-            overrides[fields[k]] = v
-        else:
-            overrides[k] = v
-    conf["question_overrides"] = overrides
-
-    return conf
-
-
-def run(args: Any) -> None:
-    with open(args.csv_filename) as csvfile:
-        # Assumptions about the file:
-        #  * Tab delimited
-        #  * Proper '\n' delimiters for end-of-line
-        #  * The first line in the file contains column key names. These must match
-        #    the ALL_CAPS globals at the top of this file.
-        reader = csv.DictReader(csvfile, delimiter=",")
-        conf = load_conf(args.config_filename, reader)
-
-        conf["logo_directory"] = args.logo_directory.rstrip("/").strip()
-        conf["output_directory"] = args.output_directory.rstrip("/").strip()
-        print(conf)
-
-        for row in reader:
-            dump_questionnare_to_pdf(row, conf)
