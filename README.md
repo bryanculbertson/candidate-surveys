@@ -48,11 +48,11 @@ If you know what you are doing, then you can skip using `pyenv` as long as you h
 
 #### Ubuntu/Debian
 
-1. You can run the following setup steps with:
+You can run the following setup steps with:
 
-    ```sh
-    ./scripts/setup-ubuntu.sh
-    ```
+```sh
+./scripts/setup-ubuntu.sh
+```
 
 1. Install python build dependencies:
 
