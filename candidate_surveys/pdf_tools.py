@@ -302,7 +302,7 @@ def dump_questionnare_to_pdf(questionnare: dict, conf: dict) -> None:
 
     # Ensure the directory exists.
     filename = generate_filename(candidate, conf)
-    filename.mkdir(parents=True, exist_ok=True)
+    filename.parent.mkdir(parents=True, exist_ok=True)
     print("Creating %s" % filename)
 
     # Start the PDF document. Set letter because we are silly Americans.
