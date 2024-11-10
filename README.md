@@ -48,7 +48,7 @@ If you know what you are doing, then you can skip using `pyenv` as long as you h
 
 #### Ubuntu/Debian
 
-0. You can run the following setup steps with:
+1. You can run the following setup steps with:
 
     ```sh
     ./scripts/setup-ubuntu.sh
@@ -155,7 +155,6 @@ If you know what you are doing, then you can skip using `pyenv` as long as you h
     ```sh
     pipx install poetry==1.8.4
     ```
-
 
 #### Mac
 
