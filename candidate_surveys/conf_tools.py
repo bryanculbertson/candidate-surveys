@@ -1,11 +1,12 @@
 import json
+import pathlib
 from collections.abc import Sequence
 
 
-def load_conf(conf_filename: str, fields: Sequence[str]) -> dict:
+def load_conf(config_path: pathlib.Path, fields: Sequence[str]) -> dict:
     conf = None
-    with open(conf_filename) as f:
-        conf = json.loads(f.read())
+    with config_path.open() as config_file:
+        conf = json.loads(config_file.read())
 
     for i, x in enumerate(conf["file_structure"]):
         if isinstance(x, int):

@@ -6,7 +6,7 @@ Example usage:
     poetry run candidate-surveys version
 
 """
-from typing import Any
+import pathlib
 
 import click
 import dotenv
@@ -27,18 +27,39 @@ def version() -> None:
 
 
 @cli.command()
-@click.argument("csv_filename")
-@click.argument("config_filename")
-@click.argument("logo_directory")
-@click.argument("output_directory")
-def generate_pdfs(args: Any) -> None:
+@click.option(
+    "--responses",
+    default="responses.csv",
+    type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path),
+)
+@click.option(
+    "--config",
+    default="config.json",
+    type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path),
+)
+@click.option(
+    "--logos",
+    default="logos",
+    type=click.Path(exists=True, file_okay=False, path_type=pathlib.Path),
+)
+@click.option(
+    "--output",
+    default="output",
+    type=click.Path(path_type=pathlib.Path),
+)
+def generate_pdfs(
+    responses: pathlib.Path,
+    config: pathlib.Path,
+    logos: pathlib.Path,
+    output: pathlib.Path,
+) -> None:
     """Generate PDFs."""
 
     commands.generate_pdfs(
-        args.csv_filename,
-        args.config_filename,
-        args.logo_directory,
-        args.output_directory,
+        responses,
+        config,
+        logos,
+        output,
     )
 
 
