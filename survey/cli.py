@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# type: ignore
-
 """
 CLI for managing candidate surveys
 
@@ -8,10 +6,12 @@ Example usage:
     poetry run survey version
 
 """
+from typing import Any
+
 import click
 import dotenv
 
-from . import pdf_utils
+from . import pdf_tools
 
 
 @click.group()
@@ -31,10 +31,10 @@ def version() -> None:
 @click.argument("config_filename")
 @click.argument("logo_directory")
 @click.argument("output_directory")
-def generate_pdfs(args) -> None:
+def generate_pdfs(args: Any) -> None:
     """Generate PDFs."""
 
-    pdf_utils.run(args)
+    pdf_tools.run(args)
 
 
 if __name__ == "__main__":
