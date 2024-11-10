@@ -1,0 +1,6 @@
+Timestamp,Email Address,Name,County,Election,What is your favorite color?,How long do your brush your teeth in the morning?,How many jumping jacks can you do in a row?,Are you a candidate in:,Do you support Polar Bears?,Do you support Penguins?
+2023-10-01 08:00:00,john.doe@example.com,John Doe,Moose County,Mayor,Blue,2 minutes,50,North Side,Bears are scary,
+2023-10-01 08:05:00,jane.smith@example.com,Jane Smith,Moose County,Mayor,Green,3 minutes,30,North Side,YES!,
+2023-10-01 08:10:00,bob.jones@example.com,Bob Jones,Falcon County,Park Ranger,Red,1 minute,20,South Side,,No
+2023-10-01 08:15:00,alice.williams@example.com,Alice Williams,Falcon County,Park Ranger,Yellow,2.5 minutes,40,South Side,,Maybe
+2023-10-01 08:20:00,charlie.brown@example.com,Charlie Brown,Falcon County,Park Ranger,Purple,3.5 minutes,60,South Side,,PENGUINS!

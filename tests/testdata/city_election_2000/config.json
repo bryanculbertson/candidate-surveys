@@ -3,20 +3,20 @@
     "subname": "November 5th, 2000 City Election",
     "footer": "Questionnaire created by the Coalition of Question Makers",
     "logo_columns": 2,
-    "file_structure": ["District", "Name"],
-    "candidate_details": ["Name", "District"],
+    "file_structure": ["County", "Name"],
+    "candidate_details": ["Name", "County"],
     "question_overrides": {
         "4": "Which office are you running for?"
     },
     "conditional_sections": {
-        "Bonus Question! Are you a candidate in:": [
+        "Are you a candidate in:": [
                { "value": "North Side",
                  "fields": ["Do you support Polar Bears?"] },
                { "value": "South Side",
                  "fields": [ "Do you support Penguins?" ] }
               ]
     },
-    "ignored_fields": ["Timestamp", "Email Address", "Bonus Question! Are you a candidate in:"],
+    "ignored_fields": ["Timestamp", "Email Address", "Are you a candidate in:"],
     "pdf_author": "Coalition of Question Makers",
     "pdf_keyphrases": ["Name", "2020", "November 5th Election", "City Election Questionnaire"],
     "pdf_creator": "Bryan Culbertson (bryan.culbertson@gmail.com)"
