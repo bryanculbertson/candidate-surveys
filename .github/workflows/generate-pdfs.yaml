@@ -40,7 +40,7 @@ jobs:
 
     - name: Run CLI
       run: |
-        candidate-surveys --responses responses.csv --config config.json --logos logos --output output
+        candidate-surveys generate-pdfs --responses responses.csv --config config.json --logos logos --output output
 
     - name: Upload output as artifact
       uses: actions/upload-artifact@v4
