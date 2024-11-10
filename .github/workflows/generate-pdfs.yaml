@@ -1,0 +1,49 @@
+name: Generate PDFs
+
+on:
+  workflow_dispatch:
+    inputs:
+      responses:
+        description: 'Survey responses CSV file'
+        required: true
+      config:
+        description: 'Config for generating the PDFs'
+        required: true
+
+jobs:
+  generate-pdfs:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: get python version
+      run: |
+        python_version=$(cat .python-version)
+        echo "python_version=${python_version}" >> $GITHUB_ENV
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.python_version }}
+
+    - name: Install CLI
+      run: |
+        pipx install .
+
+    - name: Write Inputs to File
+      run: |
+        echo '${{ github.event.inputs.responses }}' > responses.csv
+        echo '${{ github.event.inputs.config }}' > config.json
+        mkdir logos
+
+    - name: Run CLI
+      run: |
+        candidate-surveys --responses responses.csv --config config.json --logos logos --output output
+
+    - name: Upload output as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: output-pdfs
+        path: output
