@@ -8,13 +8,13 @@ Before using the project, either install it by following instructions in [Instal
 
 - Output project version
 
-    ```python
+    ```sh
     candidate-surveys version
     ```
 
 - Output PDFs for candidate responses
 
-    ```python
+    ```sh
      candidate-surveys generate-pdfs \
       --responses campaign/responses.csv \
       --config campaign/config.json \
@@ -322,19 +322,19 @@ After setting up system and project environments you can run tests, formatting, 
 
 1. Run tests and linting
 
-    ```python
+    ```sh
     poetry run tox
     ```
 
 1. Run tests
 
-    ```python
+    ```sh
     poetry run tox -qe test
     ```
 
 1. Run linting
 
-    ```python
+    ```sh
     poetry run tox -qe lint
     ```
 
