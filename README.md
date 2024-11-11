@@ -12,6 +12,57 @@ Before using the project, either install it by following instructions in [Instal
     candidate-surveys version
     ```
 
+- Output PDFs for candidate responses
+
+    ```python
+     candidate-surveys generate-pdfs \
+      --responses campaign/responses.csv \
+      --config campaign/config.json \
+      --logos campaign/logos \
+      --output campaign/output
+
+    ```
+
+### Config
+
+| Field                | Description                                                                    | Example Value                                                                             |
+|----------------------|--------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `name`               | The name of the questionnaire campaign.                                        | `"City Election 2000"`                                                                    |
+| `subname`            | A subname or subtitle for the questionnaire questionnaire.                     | `"November 5th, 2000 City Election"`                                                      |
+| `footer`             | Footer text for the questionnaire questionnaire.                               | `"Questionnaire created by the Coalition of Question Makers"`                             |
+| `logo_columns`       | Number of columns for logos.                                                   | `2`                                                                                       |
+| `file_structure`     | Fields to use for directory structure                                          | `["County", "Name"]`                                                                      |
+| `candidate_details`  | Fields to use at the top of the candidate                                      | `["Name", "County"]`                                                                      |
+| `question_overrides` | Override the question text                                                     | `{ "4": "Which office are you running for?" }`                                            |
+| `conditional_sections` | Sections that are conditionally included based on the candidate's response.  | `{ "Location:": [ { "value": "North Side", "fields": ["Do you support Polar Bears?"] } }` |
+| `ignored_fields`     | Fields to be ignored in the questionnaire.                                     | `["Timestamp", "Email Address", "Location:"]`                                             |
+| `pdf_author`         | Author of the PDF.                                                             | `"Coalition of Question Makers"`                                                          |
+| `pdf_keyphrases`     | Key phrases to be included in the PDF metadata.                                | `["Name", "2020", "November 5th Election", "City Election Questionnaire"]`                |
+| `pdf_creator`        | Creator of the PDF, including contact information.                             | `"Bryan Culbertson (bryan.culbertson@gmail.com)"`                                         |
+
+#### Example Config
+
+```json
+{
+    "name": "City Election 2000",
+    "subname": "November 5th, 2000 City Election",
+    "footer": "Questionnaire created by the Coalition of Question Makers",
+    "logo_columns": 2,
+    "file_structure": ["County", "Name"],
+    "candidate_details": ["Name", "County"],
+    "question_overrides": {
+        "4": "Which office are you running for?"
+    },
+    "conditional_sections": {
+        "Location:": [{ "value": "North Side", "fields": ["Do you support Polar Bears?"] }]
+    },
+    "ignored_fields": ["Timestamp", "Email Address", "Location:"],
+    "pdf_author": "Coalition of Question Makers",
+    "pdf_keyphrases": ["November 5th Election", "City Election Questionnaire"],
+    "pdf_creator": "Bryan Culbertson (bryan.culbertson@gmail.com)"
+}
+```
+
 ## Installation
 
 If not developing, then no need to clone this repo. You can use [pipx](https://github.com/pypa/pipx) to install the project directly. If you don't have `pipx` then first [install it](https://pypa.github.io/pipx/installation/).
