@@ -225,6 +225,9 @@ def add_logos(d: list[Flowable], directory: pathlib.Path, conf: dict) -> None:
         if filename.is_file() and filename.suffix in [".png", ".jpg", ".jpeg"]:
             valid_images.append(filename)
 
+    if len(valid_images) == 0:
+        return
+
     COLUMNS = conf["logo_columns"]
     IMGSIZE = 400 / COLUMNS
     ROWHEIGHT = IMGSIZE + 10
