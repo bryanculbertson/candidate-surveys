@@ -40,15 +40,12 @@ jobs:
         mkdir campaign
         echo '${{ github.event.inputs.survey-header }}' >> campaign/responses.csv
         echo '${{ github.event.inputs.candidate-response }}' >> campaign/responses.csv
-        cat campaign/responses.csv
         echo '${{ github.event.inputs.config }}' > campaign/config.json
-        cat campaign/config.json
         mkdir campaign/logos
 
     - name: Run CLI
       run: |
         candidate-surveys generate-pdfs --responses campaign/responses.csv --config campaign/config.json --logos campaign/logos --output campaign/output
-        ls campaign/output
 
     - name: Upload output as artifact
       uses: actions/upload-artifact@v4
