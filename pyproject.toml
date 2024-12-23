@@ -6,7 +6,7 @@ authors = ["Bryan Culbertson <bryan.culbertson@gmail.com>", "Cyrus Hall <cyrusph
 
 [tool.poetry.dependencies]
 python = "^3.12"
-click = "8.1.7"
+click = "8.1.8"
 python-dotenv = "1.0.1"
 reportlab = "4.2.5"
 
